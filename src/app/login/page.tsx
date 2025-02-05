@@ -14,6 +14,7 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import Link from "next/link";
 
 export default function Login() {
   const router = useRouter();
@@ -87,9 +88,9 @@ export default function Login() {
         <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-500">
             Don't have an account?{" "}
-            <a href="#" className="font-medium text-blue-600 hover:underline">
+            <Link href="/signup" className="font-medium text-blue-600 hover:underline">
               Sign up
-            </a>
+            </Link>
           </p>
         </CardFooter>
       </Card>
