@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const NavItems = [
-  { name: "Blogs", href: "/blogs" },
+  { name: "Home", href: "/blogs" },
   { name: "MyBlogs", href: "/my-blogs" },
 ];
 
@@ -37,7 +37,7 @@ export function Navbar({ className }: React.HTMLAttributes<HTMLElement>) {
         className
       )}
     >
-      <div className="container flex h-14 items-center">
+      <div className="container flex h-14 items-center p-6">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <span className="hidden font-bold sm:inline-block">
@@ -59,8 +59,8 @@ export function Navbar({ className }: React.HTMLAttributes<HTMLElement>) {
         <Sheet>
           <SheetTrigger asChild>
             <Button
-              variant="ghost"
-              className="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+              variant="outline"
+              className="mr-2 px-2 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
             >
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle Menu</span>
@@ -85,9 +85,9 @@ export function Navbar({ className }: React.HTMLAttributes<HTMLElement>) {
                     {item.name}
                   </MobileLink>
                 ))}
-                <Button 
-                  variant="ghost" 
-                  className="justify-start p-0"
+                <Button
+                  variant="outline"
+                  className="justify-start p-0 rounded-3xl"
                   onClick={handleLogout}
                 >
                   Logout
@@ -97,15 +97,10 @@ export function Navbar({ className }: React.HTMLAttributes<HTMLElement>) {
           </SheetContent>
         </Sheet>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            <Button variant="ghost" className="ml-auto" asChild>
-              <Link href="/">SimpL Blogs</Link>
-            </Button>
-          </div>
           <nav className="flex items-center">
-            <Button 
-              variant="ghost" 
-              className="hidden md:inline-flex"
+            <Button
+              variant="outline"
+              className="hidden md:inline-flex rounded-3xl"
               onClick={handleLogout}
             >
               Logout

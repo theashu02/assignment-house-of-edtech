@@ -8,13 +8,13 @@ import { Button } from "@/components/ui/button";
 export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
   return (
     <footer className={cn("border-t bg-background", className)}>
-      <div className="container flex items-center justify-between py-4">
+      <div className="container flex items-center justify-between py-4 p-6">
         <p className="text-sm text-muted-foreground">
           Created by{" "}
           <span className="font-semibold text-foreground">@Ashu Chauhan</span>
         </p>
         <div className="flex items-center space-x-2">
-          <Button asChild variant="ghost" size="icon">
+          <Button asChild variant="outline" size="icon">
             <Link
               href="https://www.linkedin.com/in/theashuchauhan/"
               target="_blank"
@@ -24,7 +24,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
               <span className="sr-only">LinkedIn</span>
             </Link>
           </Button>
-          <Button asChild variant="ghost" size="icon">
+          <Button asChild variant="outline" size="icon">
             <Link
               href="https://github.com/theashu02"
               target="_blank"
