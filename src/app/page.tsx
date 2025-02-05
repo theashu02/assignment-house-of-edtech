@@ -79,7 +79,7 @@ export default function Home() {
       <FrontPage />
       <Footer />
       {/* Main Content */}
-      {/* <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow">
           <div className="px-4 py-5 sm:p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">
@@ -133,7 +133,7 @@ export default function Home() {
             </button>
           </div>
         )}
-      </main> */}
+      </main>
     </div>
   );
 }
