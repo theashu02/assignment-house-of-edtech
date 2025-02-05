@@ -70,3 +70,31 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom scrollbar for the entire page */
+html {
+  scroll-behavior: smooth;
+  /* Optional: for smooth scrolling */
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  /* Width of the vertical scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  /* Track color */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b7bfc2;
+  /* Scrollbar color */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #909ca0;
+  /* Hover color */
+}
