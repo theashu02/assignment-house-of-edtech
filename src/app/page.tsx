@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { getCookie } from "cookies-next";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Footer } from "./common/Footer";
+import { Navbar } from "./common/Navbar";
 
 interface Blog {
   _id: string;
@@ -39,10 +41,10 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      {/* <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Blog Platform</h1>
+            <h1 className="text-2xl font-bold text-gray-900">SimpL Blogs</h1>
             <div className="space-x-4">
               {!isLoggedIn ? (
                 <>
@@ -69,8 +71,10 @@ export default function Home() {
               )}
             </div>
           </div>
-        </div>
-      </header>
+        </div> */}
+        {/* <Footer /> */}
+      {/* </header> */}
+      <Navbar />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
