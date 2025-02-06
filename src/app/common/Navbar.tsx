@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const NavItems = [
-  { name: "Home", href: "/blogs" },
+  { name: "Home", href: "/dashboard" },
   { name: "MyBlogs", href: "/my-blogs" },
 ];
 
