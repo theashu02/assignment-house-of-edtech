@@ -2,12 +2,16 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { PlusCircle, X } from "lucide-react";
+import { PlusCircle, X, Image as ImageIcon, Loader2 } from "lucide-react";
+import Image from "next/image";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 interface Blog {
   _id: string;
   title: string;
   content: string;
+  imageUrl?: string;
   author: {
     _id: string;
     name: string;
@@ -20,8 +24,11 @@ export default function Dashboard() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [imageUrl, setImageUrl] = useState<string>("");
   const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
-   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchBlogs();
@@ -29,27 +36,100 @@ export default function Dashboard() {
 
   const fetchBlogs = async () => {
     try {
-      const response = await axios.get("/api/blogs");
-      setBlogs(response.data);
+      const response = await fetch("/api/blogs");
+      if (!response.ok) {
+        throw new Error("Failed to fetch blogs");
+      }
+      const data = await response.json();
+      setBlogs(data);
     } catch (error) {
       console.error("Error fetching blogs:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch blogs",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setImageUrl(data.url);
+        console.log(data.url);
+        toast({
+          title: "Success",
+          description: "Image uploaded successfully",
+        });
+      } else {
+        throw new Error("Failed to upload image");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if (editingBlog) {
-        await axios.put(`/api/blogs/${editingBlog._id}`, { title, content });
-      } else {
-        await axios.post("/api/blogs", { title, content });
+      const payload = {
+        title,
+        content,
+        imageUrl
+      };
+
+      const response = await fetch(
+        editingBlog ? `/api/blogs/${editingBlog._id}` : "/api/blogs",
+        {
+          method: editingBlog ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to save blog");
       }
+
       setTitle("");
       setContent("");
+      setImageUrl("");
       setEditingBlog(null);
+      setIsModalOpen(false);
       fetchBlogs();
+
+      toast({
+        title: "Success",
+        description: editingBlog ? "Blog updated successfully" : "Blog created successfully",
+      });
     } catch (error) {
       console.error("Error saving blog:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save blog",
+        variant: "destructive",
+      });
     }
   };
 
@@ -60,58 +140,35 @@ export default function Dashboard() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this blog?")) {
+      return;
+    }
+
     try {
-      await axios.delete(`/api/blogs/${id}`);
+      const response = await fetch(`/api/blogs/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete blog");
+      }
+
       fetchBlogs();
+      toast({
+        title: "Success",
+        description: "Blog deleted successfully",
+      });
     } catch (error) {
       console.error("Error deleting blog:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete blog",
+        variant: "destructive",
+      });
     }
   };
 
   return (
-    // <div className="max-w-4xl mx-auto p-4">
-    //   <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
-
-    //   <form onSubmit={handleSubmit} className="mb-8">
-    //     <div className="mb-4">
-    //       <label className="block mb-2">Title</label>
-    //       <input
-    //         type="text"
-    //         value={title}
-    //         onChange={(e) => setTitle(e.target.value)}
-    //         className="w-full p-2 border rounded"
-    //         required
-    //       />
-    //     </div>
-    //     <div className="mb-4">
-    //       <label className="block mb-2">Content</label>
-    //       <textarea
-    //         value={content}
-    //         onChange={(e) => setContent(e.target.value)}
-    //         className="w-full p-2 border rounded"
-    //         rows={4}
-    //         required
-    //       />
-    //     </div>
-    //     <button
-    //       type="submit"
-    //       className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-    //     >
-    //       {editingBlog ? "Update Blog" : "Create Blog"}
-    //     </button>
-    //   </form>
-
-    //   <div className="space-y-4">
-    //     {blogs.map((blog) => (
-    //       <div key={blog._id} className="border p-4 rounded">
-    //         <h2 className="text-xl font-bold">{blog.title}</h2>
-    //         <p className="text-gray-600 mb-2">By {blog.author.name}</p>
-    //         <p className="mb-4">{blog.content}</p>
-    //       </div>
-    //     ))}
-    //   </div>
-    // </div>
-
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
@@ -155,6 +212,45 @@ export default function Dashboard() {
                     required
                   />
                 </div>
+
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Image
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={uploading}
+                      onClick={() => document.getElementById("image")?.click()}
+                    >
+                      {uploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <ImageIcon className="h-4 w-4 mr-2" />
+                      )}
+                      {uploading ? "Uploading..." : "Upload Image"}
+                    </Button>
+                    <input
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                    />
+                  </div>
+                  {imageUrl && (
+                    <div className="mt-4 relative w-full aspect-video">
+                      <Image
+                        src={imageUrl}
+                        alt="Blog image"
+                        fill
+                        className="object-cover rounded-lg"
+                      />
+                    </div>
+                  )}
+                </div>
+
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Content
@@ -168,6 +264,7 @@ export default function Dashboard() {
                     required
                   />
                 </div>
+
                 <div className="flex justify-end gap-4">
                   <button
                     type="button"
@@ -178,7 +275,8 @@ export default function Dashboard() {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+                    disabled={uploading}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 disabled:opacity-50"
                   >
                     Publish Post
                   </button>
@@ -191,10 +289,22 @@ export default function Dashboard() {
         {/* Blog Posts Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {blogs.map((blog) => (
-            <article
+            <div
               key={blog._id}
               className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
             >
+              {blog.imageUrl && (
+                <div className="relative w-full h-48">
+                  <Image
+                    src={blog.imageUrl}
+                    alt={blog.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    priority
+                  />
+                </div>
+              )}
               <div className="p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">
                   {blog.title}
@@ -205,7 +315,7 @@ export default function Dashboard() {
                 </p>
                 <p className="text-gray-600 line-clamp-3">{blog.content}</p>
               </div>
-            </article>
+            </div>
           ))}
         </div>
 
@@ -219,21 +329,4 @@ export default function Dashboard() {
       </div>
     </div>
   );
-}
-
-{
-  /* <div className="flex space-x-2">
-  <button
-    onClick={() => handleEdit(blog)}
-    className="bg-yellow-500 text-white p-2 rounded hover:bg-yellow-600"
-  >
-    Edit
-  </button>
-  <button
-    onClick={() => handleDelete(blog._id)}
-    className="bg-red-500 text-white p-2 rounded hover:bg-red-600"
-  >
-    Delete
-  </button>
-</div>; */
 }

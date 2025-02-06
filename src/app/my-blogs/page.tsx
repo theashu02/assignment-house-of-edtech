@@ -16,6 +16,8 @@ import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import LoadingSpinner from "../common/LoadingSpinner";
+import { Clock, User, ChevronRight } from "lucide-react";
+import { RightArrow } from "@/icons/arrow";
 
 interface Blog {
   _id: string;
@@ -26,6 +28,7 @@ interface Blog {
     name: string;
     email: string;
   };
+  imageUrl?: string;
 }
 
 export default function MyBlogs() {
@@ -43,11 +46,13 @@ export default function MyBlogs() {
       const response = await fetch("/api/my-blogs");
       if (response.ok) {
         const data = await response.json();
+        console.log("Fetched blogs:", data);
         setBlogs(data);
       } else {
         throw new Error("Failed to fetch blogs");
       }
     } catch (error) {
+      console.error("Error fetching blogs:", error);
       toast({
         title: "Error",
         description: "Failed to fetch blogs. Please try again.",
@@ -57,8 +62,6 @@ export default function MyBlogs() {
       setLoading(false);
     }
   };
-
-  
 
   const handleDelete = async (blogId: string) => {
     if (!confirm("Are you sure you want to delete this blog?")) {
@@ -98,158 +101,131 @@ export default function MyBlogs() {
     visible: { opacity: 1, y: 0 },
   };
   if (loading) {
-    return <LoadingSpinner />
+    return <LoadingSpinner />;
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold w-full text-center sm:text-left">
-          My Blogs
-        </h1>
-        <div className="flex justify-center sm:justify-end items-center gap-3 w-full">
-          <Button
-            className="w-full sm:w-auto"
-            onClick={() => router.push("/blogs/new")}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            New Blog
-          </Button>
-          {/* <Button
-            variant="outline"
-            size="icon"
-            className="w-full sm:w-auto"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          >
-            {theme === "dark" ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
-          </Button> */}
+    <>
+      <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold w-full text-center sm:text-left">
+            My Blogs
+          </h1>
+          <div className="flex justify-center sm:justify-end items-center gap-3 w-full">
+            <Button
+              className="w-full sm:w-auto"
+              onClick={() => router.push("/blogs/new")}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              New Blog
+            </Button>
+          </div>
         </div>
-      </div>
 
-      {loading ? (
-        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, index) => (
-            <Card key={index}>
-              <CardHeader>
-                <Skeleton className="h-4 w-2/3" />
-                <Skeleton className="h-3 w-1/2" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-32 w-full mb-4" />
-                <div className="flex gap-2">
-                  <Skeleton className="h-8 w-16" />
-                  <Skeleton className="h-8 w-16" />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : blogs.length === 0 ? (
-        <p className="text-center text-gray-500">No blogs found.</p>
-      ) : (
-        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
-          <AnimatePresence>
-            {blogs.map((blog, index) => (
-              <motion.div
-                key={blog._id}
-                variants={cardVariants}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="w-full"
-              >
-                <Card className="h-full flex flex-col hover:shadow-lg transition-shadow duration-300">
-                  <CardHeader>
-                    <CardTitle className="text-lg sm:text-xl mt-4">
-                      {blog.title}
-                    </CardTitle>
-                    <CardDescription className="text-sm">
-                      By {blog.author.name} on{" "}
-                      {new Date(blog.createdAt).toLocaleDateString()}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex-grow flex flex-col">
-                    <p className="mb-4 line-clamp-3 flex-grow">
-                      {blog.content}
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-2 mt-auto">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full sm:w-auto"
-                        onClick={() => handleEdit(blog._id)}
-                      >
-                        <Pencil className="h-4 w-4 mr-2" />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="w-full sm:w-auto"
-                        onClick={() => handleDelete(blog._id)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+        {loading ? (
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {[...Array(6)].map((_, index) => (
+              <Card key={index}>
+                <CardHeader>
+                  <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-3 w-1/2" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-32 w-full mb-4" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-8 w-16" />
+                    <Skeleton className="h-8 w-16" />
+                  </div>
+                </CardContent>
+              </Card>
             ))}
-          </AnimatePresence>
-        </div>
-      )}
-    </div>
+          </div>
+        ) : blogs.length === 0 ? (
+          <p className="text-center text-gray-500">No blogs found.</p>
+        ) : (
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+            <AnimatePresence>
+              {blogs.map((blog, index) => (
+                <motion.div
+                  key={blog._id}
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className="w-full"
+                >
+                  <article className="bg-gray-800 rounded-xl shadow-xl overflow-hidden transform transition-transform hover:scale-[1.02] h-full">
+                    {blog.imageUrl ? (
+                      <div className="relative w-full h-48">
+                        <Image
+                          src={blog.imageUrl}
+                          alt={blog.title}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          priority
+                          onError={(e) => {
+                            console.error("Image failed to load:", blog.imageUrl);
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-gray-800/90 to-transparent"></div>
+                      </div>
+                    ) : (
+                      <div className="relative w-full h-48 bg-gray-700 flex items-center justify-center">
+                        <span className="text-gray-400">No image available</span>
+                      </div>
+                    )}
 
-    // <div className="container py-8">
-    //   <h1 className="text-3xl font-bold mb-6">My Blogs</h1>
-    //   {blogs.length === 0 ? (
-    //     <p>You haven't created any blogs yet.</p>
-    //   ) : (
-    //     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-    //       {blogs.map((blog) => (
-    //         <Card key={blog._id}>
-    //           <CardHeader>
-    //             <CardTitle>{blog.title}</CardTitle>
-    //             <CardDescription>
-    //               By {blog.author.name} on{" "}
-    //               {new Date(blog.createdAt).toLocaleDateString()}
-    //             </CardDescription>
-    //           </CardHeader>
-    //           <CardContent>
-    //             <p className="mb-4">
-    //               {blog.content.length > 150
-    //                 ? `${blog.content.substring(0, 150)}...`
-    //                 : blog.content}
-    //             </p>
-    //             <div className="flex gap-2">
-    //               <Button
-    //                 variant="outline"
-    //                 size="sm"
-    //                 onClick={() => handleEdit(blog._id)}
-    //               >
-    //                 <Pencil className="h-4 w-4 mr-2" />
-    //                 Edit
-    //               </Button>
-    //               <Button
-    //                 variant="destructive"
-    //                 size="sm"
-    //                 onClick={() => handleDelete(blog._id)}
-    //               >
-    //                 <Trash2 className="h-4 w-4 mr-2" />
-    //                 Delete
-    //               </Button>
-    //             </div>
-    //           </CardContent>
-    //         </Card>
-    //       ))}
-    //     </div>
-    //   )}
-    // </div>
+                    <div className="p-6">
+                      <div className="flex items-center space-x-4 mb-4 text-gray-400">
+                        <div className="flex items-center">
+                          <User size={16} className="mr-2" />
+                          <span className="text-sm">{blog.author.name}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Clock size={16} className="mr-2" />
+                          <span className="text-sm">
+                            {new Date(blog.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 leading-tight">
+                        {blog.title}
+                      </h2>
+
+                      <p className="text-gray-300 mb-6 line-clamp-3">{blog.content}</p>
+
+                      <div className="flex items-center justify-between">
+                        <Button
+                          className="text-[16px] w-fit leading-[20px] mt-2 bg-[#4c0519] hover:bg-gray-800 text-white px-4 py-6 rounded-[36px]"
+                          onClick={() => handleEdit(blog._id)}
+                        >
+                          Edit
+                          <span className="bg-white rounded-full aspect-square w-[30px] h-[30px] flex items-center justify-center ml-2">
+                            <RightArrow />
+                          </span>
+                        </Button>
+                        <Button
+                          className="text-[16px] w-fit leading-[20px] mt-2 bg-[#4c0519] hover:bg-gray-800 text-white px-4 py-6 rounded-[36px]"
+                          onClick={() => handleDelete(blog._id)}
+                        >
+                          Delete
+                          <span className="bg-white rounded-full aspect-square w-[30px] h-[30px] flex items-center justify-center ml-2">
+                            <RightArrow />
+                          </span>
+                        </Button>
+                      </div>
+                    </div>
+                  </article>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

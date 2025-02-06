@@ -1,99 +1,89 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
-import connectDB from '@/lib/db';
+import { verifyAuth } from '@/lib/auth';
 import Blog from '@/models/Blog';
+import connectDB from '@/lib/db';
+import mongoose from 'mongoose';
 
 export async function PUT(
-  req: Request,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('token');
-    
-    if (!token) {
+    const userId = await verifyAuth();
+    if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    const decoded = jwt.verify(token.value, process.env.JWT_SECRET!) as { userId: string };
-    const { title, content } = await req.json();
+    const body = await request.json();
+    const { title, content, imageUrl } = body;
 
     await connectDB();
-    
-    const blog = await Blog.findById(params.id);
-    
+
+    const blog = await Blog.findOneAndUpdate(
+      {
+        _id: new mongoose.Types.ObjectId(params.id),
+        author: new mongoose.Types.ObjectId(userId)
+      },
+      {
+        title,
+        content,
+        imageUrl
+      },
+      { new: true }
+    ).populate('author', 'name email');
+
     if (!blog) {
       return NextResponse.json(
-        { error: 'Blog not found' },
+        { error: 'Blog not found or unauthorized' },
         { status: 404 }
       );
     }
 
-    if (blog.author.toString() !== decoded.userId) {
-      return NextResponse.json(
-        { error: 'Not authorized to edit this blog' },
-        { status: 403 }
-      );
-    }
-
-    blog.title = title;
-    blog.content = content;
-    await blog.save();
-
     return NextResponse.json(blog);
   } catch (error) {
+    console.error('Error updating blog:', error);
     return NextResponse.json(
-      { error: 'Error updating blog' },
+      { error: 'Failed to update blog' },
       { status: 500 }
     );
   }
 }
 
 export async function DELETE(
-  req: Request,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('token');
-    
-    if (!token) {
+    const userId = await verifyAuth();
+    if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    const decoded = jwt.verify(token.value, process.env.JWT_SECRET!) as { userId: string };
-
     await connectDB();
-    
-    const blog = await Blog.findById(params.id);
-    
+
+    const blog = await Blog.findOneAndDelete({
+      _id: new mongoose.Types.ObjectId(params.id),
+      author: new mongoose.Types.ObjectId(userId)
+    });
+
     if (!blog) {
       return NextResponse.json(
-        { error: 'Blog not found' },
+        { error: 'Blog not found or unauthorized' },
         { status: 404 }
       );
     }
 
-    if (blog.author.toString() !== decoded.userId) {
-      return NextResponse.json(
-        { error: 'Not authorized to delete this blog' },
-        { status: 403 }
-      );
-    }
-
-    await blog.deleteOne();
-
     return NextResponse.json({ message: 'Blog deleted successfully' });
   } catch (error) {
+    console.error('Error deleting blog:', error);
     return NextResponse.json(
-      { error: 'Error deleting blog' },
+      { error: 'Failed to delete blog' },
       { status: 500 }
     );
   }

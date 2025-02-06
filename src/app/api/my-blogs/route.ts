@@ -17,7 +17,7 @@ export async function GET() {
 
     await connectDB();
 
-    // Convert string userId to ObjectId and find blogs where author matches
+    // Add imageUrl to the select statement
     const blogs = await Blog.find({ 
       author: new mongoose.Types.ObjectId(userId) 
     })
@@ -25,7 +25,7 @@ export async function GET() {
       path: 'author',
       select: 'name email'
     })
-    .select('title content createdAt author')
+    .select('title content createdAt imageUrl author')
     .sort({ createdAt: -1 })
     .lean();
 
@@ -34,12 +34,15 @@ export async function GET() {
       _id: blog._id.toString(),
       title: blog.title,
       content: blog.content,
+      imageUrl: blog.imageUrl,
       createdAt: blog.createdAt.toISOString(),
       author: {
         name: blog.author.name,
-        email: blog.author.email
-      }
+        email: blog.author.email,
+      },
     }));
+
+    console.log("Transformed blogs:", transformedBlogs);
 
     return NextResponse.json(transformedBlogs);
   } catch (error) {
