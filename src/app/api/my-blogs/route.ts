@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import {verifyAuth} from "../../../lib/auth";
+import { verifyAuth } from "@/lib/auth";
+import Blog from "@/models/Blog";
 import connectDB from "@/lib/db";
-import { ObjectId } from "mongodb";
+import mongoose from "mongoose";
 
 export async function GET() {
   try {
@@ -14,43 +15,35 @@ export async function GET() {
       );
     }
 
-    const { db } = await connectDB();
-    
-    const blogs = await db
-      .collection("blogs")
-      .aggregate([
-        {
-          $match: { authorId: new ObjectId(userId) }
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "authorId",
-            foreignField: "_id",
-            as: "author"
-          }
-        },
-        {
-          $unwind: "$author"
-        },
-        {
-          $project: {
-            _id: 1,
-            title: 1,
-            content: 1,
-            createdAt: 1,
-            "author.name": 1,
-            "author.email": 1
-          }
-        },
-        {
-          $sort: { createdAt: -1 }
-        }
-      ])
-      .toArray();
+    await connectDB();
 
-    return NextResponse.json(blogs);
+    // Convert string userId to ObjectId and find blogs where author matches
+    const blogs = await Blog.find({ 
+      author: new mongoose.Types.ObjectId(userId) 
+    })
+    .populate({
+      path: 'author',
+      select: 'name email'
+    })
+    .select('title content createdAt author')
+    .sort({ createdAt: -1 })
+    .lean();
+
+    // Transform the data to match the frontend interface
+    const transformedBlogs = blogs.map((blog: any) => ({
+      _id: blog._id.toString(),
+      title: blog.title,
+      content: blog.content,
+      createdAt: blog.createdAt.toISOString(),
+      author: {
+        name: blog.author.name,
+        email: blog.author.email
+      }
+    }));
+
+    return NextResponse.json(transformedBlogs);
   } catch (error) {
+    console.error("Error in GET /api/my-blogs:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
@@ -78,32 +71,25 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const { db } = await connectDB();
-    
-    const blog = await db.collection("blogs").findOne({
-      _id: new ObjectId(blogId)
+    await connectDB();
+
+    const blog = await Blog.findOne({
+      _id: new mongoose.Types.ObjectId(blogId),
+      author: new mongoose.Types.ObjectId(userId)
     });
 
     if (!blog) {
       return NextResponse.json(
-        { error: "Blog not found" },
+        { error: "Blog not found or unauthorized" },
         { status: 404 }
       );
     }
 
-    if (blog.authorId.toString() !== userId) {
-      return NextResponse.json(
-        { error: "Unauthorized to delete this blog" },
-        { status: 403 }
-      );
-    }
-
-    await db.collection("blogs").deleteOne({
-      _id: new ObjectId(blogId)
-    });
+    await Blog.findByIdAndDelete(blogId);
 
     return NextResponse.json({ message: "Blog deleted successfully" });
   } catch (error) {
+    console.error("Error in DELETE /api/my-blogs:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
