@@ -18,24 +18,59 @@ interface BlogData {
   imageUrl?: string;
 }
 
-export default function EditBlog({ params }: { params: { id: string } }) {
+export default function EditBlog({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const [blog, setBlog] = useState<BlogData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
+  // const {id} = await params;
+  // useEffect(() => {
+  //   fetchBlog();
+  // }, [params.id]);
+   const [id, setId] = useState<string | null>(null);
+
+  // const fetchBlog = async () => {
+  //   try {
+  //     const response = await fetch(`/api/my-blogs`);
+  //     if (response.ok) {
+  //       const blogs = await response.json();
+  //       const currentBlog = blogs.find((b: BlogData) => b._id === params.id);
+  //       if (currentBlog) {
+  //         setBlog(currentBlog);
+  //       } else {
+  //         router.push("/my-blogs");
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching blog:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  useEffect(() => {
+    // Resolve the params promise
+    const fetchParams = async () => {
+      const resolvedParams = await params;
+      setId(resolvedParams.id);
+    };
+
+    fetchParams();
+  }, [params]);
 
   useEffect(() => {
-    fetchBlog();
-  }, [params.id]);
+    if (id) {
+      fetchBlog(id);
+    }
+  }, [id]);
 
-  const fetchBlog = async () => {
+  const fetchBlog = async (blogId: string) => {
     try {
       const response = await fetch(`/api/my-blogs`);
       if (response.ok) {
         const blogs = await response.json();
-        const currentBlog = blogs.find((b: BlogData) => b._id === params.id);
+        const currentBlog = blogs.find((b: BlogData) => b._id === blogId);
         if (currentBlog) {
           setBlog(currentBlog);
         } else {
@@ -48,7 +83,6 @@ export default function EditBlog({ params }: { params: { id: string } }) {
       setLoading(false);
     }
   };
-
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -78,7 +112,8 @@ export default function EditBlog({ params }: { params: { id: string } }) {
       console.error("Error uploading image:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to upload image",
+        description:
+          error instanceof Error ? error.message : "Failed to upload image",
         variant: "destructive",
       });
     } finally {
@@ -194,7 +229,10 @@ export default function EditBlog({ params }: { params: { id: string } }) {
                         <>
                           <ImagePlus className="w-12 h-12 mb-3 text-zinc-400" />
                           <p className="mb-2 text-sm text-zinc-400">
-                            <span className="font-semibold">Click to upload</span> or drag and drop
+                            <span className="font-semibold">
+                              Click to upload
+                            </span>{" "}
+                            or drag and drop
                           </p>
                           <p className="text-xs text-zinc-500">
                             SVG, PNG, JPG or GIF (MAX. 800x400px)
