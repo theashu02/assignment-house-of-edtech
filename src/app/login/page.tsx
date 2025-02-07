@@ -27,7 +27,7 @@ export default function Login() {
     e.preventDefault();
     try {
       await axios.post('/api/auth/login', { email, password });
-      router.push('/dashboard');
+      router.push('/');
     } catch (error: any) {
       setError(error.response?.data?.error || 'An error occurred');
     }
