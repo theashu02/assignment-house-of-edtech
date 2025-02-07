@@ -2,10 +2,30 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { PlusCircle, X, Image as ImageIcon, Loader2 } from "lucide-react";
+import {
+  PlusCircle,
+  X,
+  Image as ImageIcon,
+  Loader2,
+  Calendar,
+  UserCircle,
+  ArrowRight
+} from "lucide-react";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import {
+  DialogDescription,
+  DialogTitle,
+  DialogHeader,
+  DialogContent,
+  Dialog,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {Label} from "@/components/ui/label";
+import {Textarea} from "@/components/ui/textarea";
+import {Input} from "@/components/ui/input";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Blog {
   _id: string;
@@ -183,7 +203,7 @@ export default function Dashboard() {
         </div>
 
         {/* Modal */}
-        {isModalOpen && (
+        {/* {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl transform transition-all">
               <div className="flex justify-between items-center p-6 border-b">
@@ -284,11 +304,111 @@ export default function Dashboard() {
               </form>
             </div>
           </div>
+        )} */}
+        {isModalOpen && (
+          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <DialogContent className="sm:max-w-2xl bg-zinc-900 border border-zinc-800 text-zinc-100">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-semibold">
+                  Create New Post
+                </DialogTitle>
+                <DialogDescription className="text-zinc-400">
+                  Share your thoughts with the world. Add a title, image, and
+                  content to create your post.
+                </DialogDescription>
+              </DialogHeader>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="title" className="text-zinc-200">
+                    Title
+                  </Label>
+                  <Input
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="bg-zinc-800 border-zinc-700 text-zinc-100 focus-visible:ring-zinc-700 focus-visible:ring-offset-zinc-900"
+                    placeholder="Enter post title"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-zinc-200">Image</Label>
+                  <div className="flex items-center gap-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={uploading}
+                      onClick={() => document.getElementById("image")?.click()}
+                      className="bg-zinc-800 border-zinc-700 text-zinc-100 hover:bg-zinc-700 hover:text-zinc-100"
+                    >
+                      {uploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <ImageIcon className="h-4 w-4 mr-2" />
+                      )}
+                      {uploading ? "Uploading..." : "Upload Image"}
+                    </Button>
+                    <input
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                    />
+                  </div>
+                  {imageUrl && (
+                    <div className="mt-4 relative w-[40%] aspect-video rounded-lg overflow-hidden border border-zinc-700">
+                      <Image
+                        src={imageUrl}
+                        alt="Blog image"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="content" className="text-zinc-200">
+                    Content
+                  </Label>
+                  <Textarea
+                    id="content"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    className="bg-zinc-800 border-zinc-700 text-zinc-100 focus-visible:ring-zinc-700 focus-visible:ring-offset-zinc-900 min-h-[150px]"
+                    placeholder="Write your post content..."
+                    required
+                  />
+                </div>
+
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsModalOpen(false)}
+                    className="bg-zinc-800 border-zinc-700 text-zinc-100 hover:bg-zinc-700 hover:text-zinc-100"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={uploading}
+                    className="bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    Publish Post
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         )}
 
         {/* Blog Posts Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {blogs.map((blog) => (
+          {/* {blogs.map((blog) => (
             <div
               key={blog._id}
               className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
@@ -316,7 +436,74 @@ export default function Dashboard() {
                 <p className="text-gray-600 line-clamp-3">{blog.content}</p>
               </div>
             </div>
-          ))}
+          ))} */}
+          <AnimatePresence>
+            {blogs.map((blog, index) => (
+              <motion.div
+                key={blog._id}
+                initial={{ opacity: 0, y: 20 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                exit={{ opacity: 0, y: 20 }} 
+                transition={{
+                  duration: 0.3,
+                  delay: index * 0.1,
+                  ease: "easeInOut",
+                }}
+                className="group bg-zinc-900 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-all duration-300 overflow-hidden"
+              >
+                {blog.imageUrl && (
+                  <div className="relative w-full h-56 overflow-hidden">
+                    <Image
+                      src={blog.imageUrl}
+                      alt={blog.title}
+                      fill
+                      className="object-cover transform group-hover:scale-105 transition-transform duration-500"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/60 to-transparent" />
+                  </div>
+                )}
+                <div className="p-6 space-y-4">
+                  <div className="space-y-2">
+                    <h2 className="text-xl font-semibold text-zinc-100 line-clamp-2 group-hover:text-blue-400 transition-colors duration-200">
+                      {blog.title}
+                    </h2>
+                    <div className="flex items-center gap-2 text-sm text-zinc-400">
+                      <span className="inline-flex items-center gap-1">
+                        <UserCircle className="h-4 w-4" />
+                        {blog.author.name}
+                      </span>
+                      <span className="text-zinc-600">•</span>
+                      <span className="inline-flex items-center gap-1">
+                        <Calendar className="h-4 w-4" />
+                        {new Date(blog.createdAt).toLocaleDateString(
+                          undefined,
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-zinc-400 line-clamp-3 text-sm leading-relaxed">
+                    {blog.content}
+                  </p>
+                  <div className="pt-2">
+                    <Button
+                      variant="ghost"
+                      className="text-zinc-50 hover:text-zinc-200 -ml-4 text-sm bg-slate-600 hover:bg-slate-500"
+                    >
+                      Read more
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
 
         {blogs.length === 0 && (
