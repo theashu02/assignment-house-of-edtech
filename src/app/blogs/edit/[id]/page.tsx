@@ -10,7 +10,7 @@ import { Image as ImageIcon, Loader2, ImagePlus } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
-import axios from "axios"
+import axios from "axios";
 import LoadingSpinner from "@/app/common/LoadingSpinner";
 
 interface BlogData {
@@ -20,37 +20,20 @@ interface BlogData {
   imageUrl?: string;
 }
 
-export default function EditBlog({ params }: { params: Promise<{ id: string }> }) {
+export default function EditBlog({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const router = useRouter();
   const [blog, setBlog] = useState<BlogData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
-  // const {id} = await params;
-  // useEffect(() => {
-  //   fetchBlog();
-  // }, [params.id]);
-   const [id, setId] = useState<string | null>(null);
 
-  // const fetchBlog = async () => {
-  //   try {
-  //     const response = await fetch(`/api/my-blogs`);
-  //     if (response.ok) {
-  //       const blogs = await response.json();
-  //       const currentBlog = blogs.find((b: BlogData) => b._id === params.id);
-  //       if (currentBlog) {
-  //         setBlog(currentBlog);
-  //       } else {
-  //         router.push("/my-blogs");
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching blog:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const [id, setId] = useState<string | null>(null);
+
   useEffect(() => {
     // Resolve the params promise
     const fetchParams = async () => {
@@ -67,24 +50,6 @@ export default function EditBlog({ params }: { params: Promise<{ id: string }> }
     }
   }, [id]);
 
-  // const fetchBlog = async (blogId: string) => {
-  //   try {
-  //     const response = await fetch(`/api/my-blogs`);
-  //     if (response.ok) {
-  //       const blogs = await response.json();
-  //       const currentBlog = blogs.find((b: BlogData) => b._id === blogId);
-  //       if (currentBlog) {
-  //         setBlog(currentBlog);
-  //       } else {
-  //         router.push("/my-blogs");
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching blog:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const fetchBlog = async (blogId: string) => {
     try {
       const { data: blogs } = await axios.get(`/api/my-blogs`);
@@ -101,43 +66,6 @@ export default function EditBlog({ params }: { params: Promise<{ id: string }> }
       setLoading(false);
     }
   };
-  // const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (!file) return;
-
-  //   setUploading(true);
-  //   const formData = new FormData();
-  //   formData.append("file", file);
-
-  //   try {
-  //     const response = await fetch("/api/upload", {
-  //       method: "POST",
-  //       body: formData,
-  //     });
-
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       setBlog((prev) => (prev ? { ...prev, imageUrl: data.url } : null));
-  //       toast({
-  //         title: "Success",
-  //         description: "Image uploaded successfully",
-  //       });
-  //     } else {
-  //       const data = await response.json();
-  //       throw new Error(data.error || "Failed to upload image");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error uploading image:", error);
-  //     toast({
-  //       title: "Error",
-  //       description:
-  //         error instanceof Error ? error.message : "Failed to upload image",
-  //       variant: "destructive",
-  //     });
-  //   } finally {
-  //     setUploading(false);
-  //   }
-  // };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -167,50 +95,6 @@ export default function EditBlog({ params }: { params: Promise<{ id: string }> }
     }
   };
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   if (!blog) return;
-
-  //   setSaving(true);
-  //   try {
-  //     const response = await fetch(`/api/blogs/${blog._id}`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         title: blog.title,
-  //         content: blog.content,
-  //         imageUrl: blog.imageUrl,
-  //       }),
-  //     });
-
-  //     if (response.ok) {
-  //       toast({
-  //         title: "Success",
-  //         description: "Blog updated successfully",
-  //       });
-  //       router.push("/my-blogs");
-  //       router.refresh();
-  //     } else {
-  //       const data = await response.json();
-  //       toast({
-  //         title: "Error",
-  //         description: data.error || "Failed to update blog",
-  //         variant: "destructive",
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating blog:", error);
-  //     toast({
-  //       title: "Error",
-  //       description: "Failed to update blog",
-  //       variant: "destructive",
-  //     });
-  //   } finally {
-  //     setSaving(false);
-  //   }
-  // };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!blog) return;
@@ -243,7 +127,7 @@ export default function EditBlog({ params }: { params: Promise<{ id: string }> }
   };
 
   if (loading) {
-    return <LoadingSpinner />
+    return <LoadingSpinner />;
   }
 
   if (!blog) {
@@ -253,12 +137,8 @@ export default function EditBlog({ params }: { params: Promise<{ id: string }> }
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-black p-4">
       <Card className="w-full max-w-2xl bg-zinc-900 border-zinc-800">
-        {/* <CardHeader>
-          
-          
-        </CardHeader> */}
         {/* <span className="text-2xl font-bold text-zinc-100">Edit the Post</span> */}
-        <CardTitle className="text-2xl font-bold text-zinc-100">
+        <CardTitle className="text-2xl font-bold text-zinc-100 pt-4 pl-6">
           Edit the Post
         </CardTitle>
         <CardContent className="space-y-4">

@@ -23,24 +23,31 @@ export default function Login() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-   const { toast } = useToast();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
     try {
-      await axios.post("/api/auth/login", { email, password });
-      toast({
-        title: "Success",
-        description: "Login successfully",
+      const { status } = await axios.post("/api/auth/login", {
+        email,
+        password,
       });
-      router.push("/");
+
+      if (status === 200) {
+        toast({
+          title: "Success",
+          description: "Login successful",
+        });
+        router.push("/");
+      }
     } catch (error: any) {
       setError(error.response?.data?.error || "An error occurred");
       toast({
         title: "Error",
-        description: "An error occurred",
+        description: error.response?.data?.error || "An error occurred",
         variant: "destructive",
       });
     } finally {
@@ -48,7 +55,7 @@ export default function Login() {
     }
   };
 
-  return (
+  http: return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-800 px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">

@@ -2,21 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Pencil, Trash2, Plus, ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+  CardHeader
 } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import LoadingSpinner from "../common/LoadingSpinner";
-import { Clock, User, ChevronRight } from "lucide-react";
+import { Clock, User } from "lucide-react";
 import { RightArrow } from "@/icons/arrow";
 import axios from "axios"
 
@@ -107,9 +105,6 @@ export default function MyBlogs() {
           </h1>
 
           <div className="flex justify-center sm:justify-end items-center gap-3 w-full">
-            {/* <Button className="w-full sm:w-auto">
-              <Plus className="h-4 w-4 mr-2" />
-            </Button> */}
             <Button
               className="text-[16px] w-fit leading-[20px] mt-2 bg-[#4c0519] hover:bg-gray-800 text-white px-4 py-6 rounded-[36px]"
               onClick={() => router.push("/dashboard")}

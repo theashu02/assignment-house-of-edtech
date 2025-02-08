@@ -1,15 +1,13 @@
-'use client';
-
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import axios from 'axios';
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
   CardFooter,
@@ -20,44 +18,40 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Signup() {
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
-     const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   try {
-  //     await axios.post('/api/auth/signup', { name, email, password });
-  //     router.push('/login');
-  //   } catch (error: any) {
-  //     setError(error.response?.data?.error || 'An error occurred');
-  //   }
-  // };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      await axios.post("/api/auth/signup", { name, email, password });
-      toast({
-        title: "Success",
-        description: "Signup successfully",
+      const { status } = await axios.post("/api/auth/signup", {
+        name,
+        email,
+        password,
       });
-      toast({
-        title: "Success",
-        description: "Account created successfully! Redirecting to login...",
-      });
-      router.push("/login");
+
+      if (status === 201) {
+        toast({
+          title: "Success",
+          description: "Account created successfully! Redirecting to login...",
+        });
+        router.push("/login");
+      }
     } catch (error: any) {
       setError(error.response?.data?.error || "An error occurred");
       toast({
         title: "Error",
-        description: "Failed to sign up refresh and wait.",
+        description:
+          error.response?.data?.error ||
+          "Failed to sign up. Please refresh and try again.",
         variant: "destructive",
       });
     } finally {
@@ -147,4 +141,4 @@ export default function Signup() {
       </Card>
     </div>
   );
-} 
+}
