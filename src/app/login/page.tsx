@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
   CardFooter,
@@ -26,15 +25,6 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
    const { toast } = useToast();
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   try {
-  //     await axios.post('/api/auth/login', { email, password });
-  //     router.push('/');
-  //   } catch (error: any) {
-  //     setError(error.response?.data?.error || 'An error occurred');
-  //   }
-  // };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -65,9 +55,6 @@ export default function Login() {
           <CardTitle className="text-2xl font-bold text-center">
             Login
           </CardTitle>
-          {/* <CardDescription className="text-center">
-            Enter your email and password to access your account
-          </CardDescription> */}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

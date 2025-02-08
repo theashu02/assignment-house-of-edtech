@@ -18,6 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { Clock, User, ChevronRight } from "lucide-react";
 import { RightArrow } from "@/icons/arrow";
+import axios from "axios"
 
 interface Blog {
   _id: string;
@@ -43,14 +44,9 @@ export default function MyBlogs() {
 
   const fetchMyBlogs = async () => {
     try {
-      const response = await fetch("/api/my-blogs");
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Fetched blogs:", data);
-        setBlogs(data);
-      } else {
-        throw new Error("Failed to fetch blogs");
-      }
+      const { data } = await axios.get("/api/my-blogs");
+      console.log("Fetched blogs:", data);
+      setBlogs(data);
     } catch (error) {
       console.error("Error fetching blogs:", error);
       toast({
@@ -69,20 +65,15 @@ export default function MyBlogs() {
     }
 
     try {
-      const response = await fetch(`/api/my-blogs?id=${blogId}`, {
-        method: "DELETE",
-      });
+      await axios.delete(`/api/my-blogs`, { params: { id: blogId } });
 
-      if (response.ok) {
-        // Remove the deleted blog from the state
-        setBlogs(blogs.filter((blog) => blog._id !== blogId));
-        toast({
-          title: "Success",
-          description: "Blog deleted successfully",
-        });
-      } else {
-        throw new Error("Failed to delete blog");
-      }
+      // Remove the deleted blog from the state
+      setBlogs(blogs.filter((blog) => blog._id !== blogId));
+
+      toast({
+        title: "Success",
+        description: "Blog deleted successfully",
+      });
     } catch (error) {
       toast({
         title: "Error",
