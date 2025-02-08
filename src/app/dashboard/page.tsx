@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { RightArrow } from "@/icons/arrow";
-  import axios from "axios";
+import axios from "axios";
 interface Blog {
   _id: string;
   title: string;
@@ -175,11 +175,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-800">
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => router.push("/")}
-        >
+        <Button variant="outline" size="icon" onClick={() => router.push("/")}>
           <ChevronLeft />
         </Button>
         <div className="flex justify-between items-center mb-8">
