@@ -227,7 +227,7 @@ export default function Dashboard() {
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
             <DialogContent className="sm:max-w-2xl bg-zinc-900 border border-zinc-800 text-zinc-700">
               <DialogHeader>
-                <DialogTitle className="text-2xl font-semibold">
+                <DialogTitle className="text-2xl font-semibold text-gray-300">
                   Create New Post
                 </DialogTitle>
                 <DialogDescription className="text-zinc-400">

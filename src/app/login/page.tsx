@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,26 +10,51 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import axios from 'axios';
+import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Login() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+   const { toast } = useToast();
 
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   try {
+  //     await axios.post('/api/auth/login', { email, password });
+  //     router.push('/');
+  //   } catch (error: any) {
+  //     setError(error.response?.data?.error || 'An error occurred');
+  //   }
+  // };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
     try {
-      await axios.post('/api/auth/login', { email, password });
-      router.push('/');
+      await axios.post("/api/auth/login", { email, password });
+      toast({
+        title: "Success",
+        description: "Login successfully",
+      });
+      router.push("/");
     } catch (error: any) {
-      setError(error.response?.data?.error || 'An error occurred');
+      setError(error.response?.data?.error || "An error occurred");
+      toast({
+        title: "Error",
+        description: "An error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -81,14 +106,25 @@ export default function Login() {
               </div>
             </div>
             <Button type="submit" className="w-full">
-              Sign in
+              {/* Sign in */}
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin h-5 w-5 mr-2" />
+                  Loading...
+                </>
+              ) : (
+                "Sign in"
+              )}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-500">
             Don't have an account?{" "}
-            <Link href="/signup" className="font-medium text-blue-600 hover:underline">
+            <Link
+              href="/signup"
+              className="font-medium text-blue-600 hover:underline"
+            >
               Sign up
             </Link>
           </p>
@@ -96,4 +132,4 @@ export default function Login() {
       </Card>
     </div>
   );
-} 
+}
