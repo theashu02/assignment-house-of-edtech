@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -107,17 +107,26 @@ export default function MyBlogs() {
   return (
     <>
       <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <Button variant="outline" size="icon" onClick={() => router.push("/")} className="mt-[15%] md:mt-2 absolute">
+          <ChevronLeft />
+        </Button>
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold w-full text-center sm:text-left">
             My Blogs
           </h1>
+
           <div className="flex justify-center sm:justify-end items-center gap-3 w-full">
-            <Button
-              className="w-full sm:w-auto"
-              onClick={() => router.push("/blogs/new")}
-            >
+            {/* <Button className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
-              New Blog
+            </Button> */}
+            <Button
+              className="text-[16px] w-fit leading-[20px] mt-2 bg-[#4c0519] hover:bg-gray-800 text-white px-4 py-6 rounded-[36px]"
+              onClick={() => router.push("/dashboard")}
+            >
+              Create Blog
+              <span className="bg-white rounded-full aspect-square w-[30px] h-[30px] flex items-center justify-center ml-2">
+                <RightArrow />
+              </span>
             </Button>
           </div>
         </div>
@@ -166,15 +175,20 @@ export default function MyBlogs() {
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           priority
                           onError={(e) => {
-                            console.error("Image failed to load:", blog.imageUrl);
-                            e.currentTarget.style.display = 'none';
+                            console.error(
+                              "Image failed to load:",
+                              blog.imageUrl
+                            );
+                            e.currentTarget.style.display = "none";
                           }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-gray-800/90 to-transparent"></div>
                       </div>
                     ) : (
                       <div className="relative w-full h-48 bg-gray-700 flex items-center justify-center">
-                        <span className="text-gray-400">No image available</span>
+                        <span className="text-gray-400">
+                          No image available
+                        </span>
                       </div>
                     )}
 
@@ -196,7 +210,9 @@ export default function MyBlogs() {
                         {blog.title}
                       </h2>
 
-                      <p className="text-gray-300 mb-6 line-clamp-3">{blog.content}</p>
+                      <p className="text-gray-300 mb-6 line-clamp-3">
+                        {blog.content}
+                      </p>
 
                       <div className="flex items-center justify-between">
                         <Button
