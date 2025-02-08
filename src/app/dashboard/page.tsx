@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
 import {
   PlusCircle,
   X,
@@ -9,7 +8,8 @@ import {
   Loader2,
   Calendar,
   UserCircle,
-  ArrowRight
+  ArrowRight,
+  ChevronLeft,
 } from "lucide-react";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
@@ -22,11 +22,12 @@ import {
   Dialog,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {Label} from "@/components/ui/label";
-import {Textarea} from "@/components/ui/textarea";
-import {Input} from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { useRouter } from "next/navigation";
+import { RightArrow } from "@/icons/arrow";
 interface Blog {
   _id: string;
   title: string;
@@ -49,10 +50,12 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     fetchBlogs();
   }, []);
+
 
   const fetchBlogs = async () => {
     try {
@@ -114,7 +117,7 @@ export default function Dashboard() {
       const payload = {
         title,
         content,
-        imageUrl
+        imageUrl,
       };
 
       const response = await fetch(
@@ -141,7 +144,9 @@ export default function Dashboard() {
 
       toast({
         title: "Success",
-        description: editingBlog ? "Blog updated successfully" : "Blog created successfully",
+        description: editingBlog
+          ? "Blog updated successfully"
+          : "Blog created successfully",
       });
     } catch (error) {
       console.error("Error saving blog:", error);
@@ -189,20 +194,35 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-800">
       <div className="max-w-6xl mx-auto px-4 py-8">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => router.push("/")}
+        >
+          <ChevronLeft />
+        </Button>
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Blog Dashboard</h1>
-          <button
+          <h1 className="text-3xl font-bold text-gray-200">Blog Dashboard</h1>
+          {/* <button
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
           >
             <PlusCircle size={20} />
             <span>Create Post</span>
-          </button>
+          </button> */}
+          <Button
+            className="text-[16px] w-fit leading-[20px] mt-2 bg-[#4c0519] hover:bg-gray-800 text-white px-4 py-6 rounded-[36px]"
+            onClick={() => setIsModalOpen(true)}
+          >
+            Create Blog
+            <span className="bg-white rounded-full aspect-square w-[30px] h-[30px] flex items-center justify-center ml-2">
+              <RightArrow />
+            </span>
+          </Button>
         </div>
 
-        
         {isModalOpen && (
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
             <DialogContent className="sm:max-w-2xl bg-zinc-900 border border-zinc-800 text-zinc-700">
@@ -306,42 +326,13 @@ export default function Dashboard() {
 
         {/* Blog Posts Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {/* {blogs.map((blog) => (
-            <div
-              key={blog._id}
-              className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
-            >
-              {blog.imageUrl && (
-                <div className="relative w-full h-48">
-                  <Image
-                    src={blog.imageUrl}
-                    alt={blog.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    priority
-                  />
-                </div>
-              )}
-              <div className="p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">
-                  {blog.title}
-                </h2>
-                <p className="text-sm text-gray-500 mb-4">
-                  By {blog.author.name} •{" "}
-                  {new Date(blog.createdAt).toLocaleDateString()}
-                </p>
-                <p className="text-gray-600 line-clamp-3">{blog.content}</p>
-              </div>
-            </div>
-          ))} */}
           <AnimatePresence>
             {blogs.map((blog, index) => (
               <motion.div
                 key={blog._id}
-                initial={{ opacity: 0, y: 20 }} 
-                animate={{ opacity: 1, y: 0 }} 
-                exit={{ opacity: 0, y: 20 }} 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
                 transition={{
                   duration: 0.3,
                   delay: index * 0.1,
@@ -389,15 +380,16 @@ export default function Dashboard() {
                   <p className="text-zinc-400 line-clamp-3 text-sm leading-relaxed">
                     {blog.content}
                   </p>
-                  <div className="pt-2">
+                  {/* <div className="pt-2">
                     <Button
                       variant="ghost"
                       className="text-zinc-50 hover:text-zinc-200 -ml-4 text-sm bg-slate-600 hover:bg-slate-500"
+                      onClick={() => window.location.href = `/blog/${blog._id}`}
                     >
                       Read more
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
-                  </div>
+                  </div> */}
                 </div>
               </motion.div>
             ))}
