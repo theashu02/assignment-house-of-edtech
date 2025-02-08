@@ -14,8 +14,9 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Signup() {
   const router = useRouter();
@@ -24,14 +25,43 @@ export default function Signup() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+     const { toast } = useToast();
 
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   try {
+  //     await axios.post('/api/auth/signup', { name, email, password });
+  //     router.push('/login');
+  //   } catch (error: any) {
+  //     setError(error.response?.data?.error || 'An error occurred');
+  //   }
+  // };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
+
     try {
-      await axios.post('/api/auth/signup', { name, email, password });
-      router.push('/login');
+      await axios.post("/api/auth/signup", { name, email, password });
+      toast({
+        title: "Success",
+        description: "Signup successfully",
+      });
+      toast({
+        title: "Success",
+        description: "Account created successfully! Redirecting to login...",
+      });
+      router.push("/login");
     } catch (error: any) {
-      setError(error.response?.data?.error || 'An error occurred');
+      setError(error.response?.data?.error || "An error occurred");
+      toast({
+        title: "Error",
+        description: "Failed to sign up refresh and wait.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -91,7 +121,15 @@ export default function Signup() {
               </div>
             </div>
             <Button type="submit" className="w-full">
-              Sign in
+              {/* Sign in */}
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin h-5 w-5 mr-2" />
+                  Loading...
+                </>
+              ) : (
+                "Sign Up"
+              )}
             </Button>
           </form>
         </CardContent>
