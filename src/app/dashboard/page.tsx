@@ -2,13 +2,10 @@
 
 import { useState, useEffect } from "react";
 import {
-  PlusCircle,
-  X,
   Image as ImageIcon,
   Loader2,
   Calendar,
   UserCircle,
-  ArrowRight,
   ChevronLeft,
 } from "lucide-react";
 import Image from "next/image";
@@ -28,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { RightArrow } from "@/icons/arrow";
+  import axios from "axios";
 interface Blog {
   _id: string;
   title: string;
@@ -56,14 +54,9 @@ export default function Dashboard() {
     fetchBlogs();
   }, []);
 
-
   const fetchBlogs = async () => {
     try {
-      const response = await fetch("/api/blogs");
-      if (!response.ok) {
-        throw new Error("Failed to fetch blogs");
-      }
-      const data = await response.json();
+      const { data } = await axios.get("/api/blogs");
       setBlogs(data);
     } catch (error) {
       console.error("Error fetching blogs:", error);
@@ -84,22 +77,18 @@ export default function Dashboard() {
     formData.append("file", file);
 
     try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
+      const { data } = await axios.post("/api/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setImageUrl(data.url);
-        console.log(data.url);
-        toast({
-          title: "Success",
-          description: "Image uploaded successfully",
-        });
-      } else {
-        throw new Error("Failed to upload image");
-      }
+      setImageUrl(data.url);
+      console.log(data.url);
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
     } catch (error) {
       toast({
         title: "Error",
@@ -110,7 +99,6 @@ export default function Dashboard() {
       setUploading(false);
     }
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -120,20 +108,17 @@ export default function Dashboard() {
         imageUrl,
       };
 
-      const response = await fetch(
-        editingBlog ? `/api/blogs/${editingBlog._id}` : "/api/blogs",
-        {
-          method: editingBlog ? "PUT" : "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const url = editingBlog ? `/api/blogs/${editingBlog._id}` : "/api/blogs";
+      const method = editingBlog ? "put" : "post";
 
-      if (!response.ok) {
-        throw new Error("Failed to save blog");
-      }
+      await axios({
+        method,
+        url,
+        data: payload,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       setTitle("");
       setContent("");
@@ -170,13 +155,7 @@ export default function Dashboard() {
     }
 
     try {
-      const response = await fetch(`/api/blogs/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete blog");
-      }
+      await axios.delete(`/api/blogs/${id}`);
 
       fetchBlogs();
       toast({
@@ -205,13 +184,6 @@ export default function Dashboard() {
         </Button>
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-200">Blog Dashboard</h1>
-          {/* <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-          >
-            <PlusCircle size={20} />
-            <span>Create Post</span>
-          </button> */}
           <Button
             className="text-[16px] w-fit leading-[20px] mt-2 bg-[#4c0519] hover:bg-gray-800 text-white px-4 py-6 rounded-[36px]"
             onClick={() => setIsModalOpen(true)}

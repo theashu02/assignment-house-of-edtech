@@ -10,6 +10,8 @@ import { Image as ImageIcon, Loader2, ImagePlus } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
+import axios from "axios"
+import LoadingSpinner from "@/app/common/LoadingSpinner";
 
 interface BlogData {
   _id: string;
@@ -65,17 +67,33 @@ export default function EditBlog({ params }: { params: Promise<{ id: string }> }
     }
   }, [id]);
 
+  // const fetchBlog = async (blogId: string) => {
+  //   try {
+  //     const response = await fetch(`/api/my-blogs`);
+  //     if (response.ok) {
+  //       const blogs = await response.json();
+  //       const currentBlog = blogs.find((b: BlogData) => b._id === blogId);
+  //       if (currentBlog) {
+  //         setBlog(currentBlog);
+  //       } else {
+  //         router.push("/my-blogs");
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching blog:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const fetchBlog = async (blogId: string) => {
     try {
-      const response = await fetch(`/api/my-blogs`);
-      if (response.ok) {
-        const blogs = await response.json();
-        const currentBlog = blogs.find((b: BlogData) => b._id === blogId);
-        if (currentBlog) {
-          setBlog(currentBlog);
-        } else {
-          router.push("/my-blogs");
-        }
+      const { data: blogs } = await axios.get(`/api/my-blogs`);
+      const currentBlog = blogs.find((b: BlogData) => b._id === blogId);
+
+      if (currentBlog) {
+        setBlog(currentBlog);
+      } else {
+        router.push("/my-blogs");
       }
     } catch (error) {
       console.error("Error fetching blog:", error);
@@ -83,6 +101,44 @@ export default function EditBlog({ params }: { params: Promise<{ id: string }> }
       setLoading(false);
     }
   };
+  // const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
+
+  //   setUploading(true);
+  //   const formData = new FormData();
+  //   formData.append("file", file);
+
+  //   try {
+  //     const response = await fetch("/api/upload", {
+  //       method: "POST",
+  //       body: formData,
+  //     });
+
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       setBlog((prev) => (prev ? { ...prev, imageUrl: data.url } : null));
+  //       toast({
+  //         title: "Success",
+  //         description: "Image uploaded successfully",
+  //       });
+  //     } else {
+  //       const data = await response.json();
+  //       throw new Error(data.error || "Failed to upload image");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error uploading image:", error);
+  //     toast({
+  //       title: "Error",
+  //       description:
+  //         error instanceof Error ? error.message : "Failed to upload image",
+  //       variant: "destructive",
+  //     });
+  //   } finally {
+  //     setUploading(false);
+  //   }
+  // };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -92,28 +148,18 @@ export default function EditBlog({ params }: { params: Promise<{ id: string }> }
     formData.append("file", file);
 
     try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+      const { data } = await axios.post("/api/upload", formData);
 
-      if (response.ok) {
-        const data = await response.json();
-        setBlog((prev) => (prev ? { ...prev, imageUrl: data.url } : null));
-        toast({
-          title: "Success",
-          description: "Image uploaded successfully",
-        });
-      } else {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to upload image");
-      }
-    } catch (error) {
+      setBlog((prev) => (prev ? { ...prev, imageUrl: data.url } : null));
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
+    } catch (error: any) {
       console.error("Error uploading image:", error);
       toast({
         title: "Error",
-        description:
-          error instanceof Error ? error.message : "Failed to upload image",
+        description: error?.response?.data?.error || "Failed to upload image",
         variant: "destructive",
       });
     } finally {
@@ -121,44 +167,74 @@ export default function EditBlog({ params }: { params: Promise<{ id: string }> }
     }
   };
 
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (!blog) return;
+
+  //   setSaving(true);
+  //   try {
+  //     const response = await fetch(`/api/blogs/${blog._id}`, {
+  //       method: "PUT",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         title: blog.title,
+  //         content: blog.content,
+  //         imageUrl: blog.imageUrl,
+  //       }),
+  //     });
+
+  //     if (response.ok) {
+  //       toast({
+  //         title: "Success",
+  //         description: "Blog updated successfully",
+  //       });
+  //       router.push("/my-blogs");
+  //       router.refresh();
+  //     } else {
+  //       const data = await response.json();
+  //       toast({
+  //         title: "Error",
+  //         description: data.error || "Failed to update blog",
+  //         variant: "destructive",
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating blog:", error);
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to update blog",
+  //       variant: "destructive",
+  //     });
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!blog) return;
 
     setSaving(true);
     try {
-      const response = await fetch(`/api/blogs/${blog._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: blog.title,
-          content: blog.content,
-          imageUrl: blog.imageUrl,
-        }),
+      await axios.put(`/api/blogs/${blog._id}`, {
+        title: blog.title,
+        content: blog.content,
+        imageUrl: blog.imageUrl,
       });
 
-      if (response.ok) {
-        toast({
-          title: "Success",
-          description: "Blog updated successfully",
-        });
-        router.push("/my-blogs");
-        router.refresh();
-      } else {
-        const data = await response.json();
-        toast({
-          title: "Error",
-          description: data.error || "Failed to update blog",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
+      toast({
+        title: "Success",
+        description: "Blog updated successfully",
+      });
+
+      router.push("/my-blogs");
+      router.refresh();
+    } catch (error: any) {
       console.error("Error updating blog:", error);
       toast({
         title: "Error",
-        description: "Failed to update blog",
+        description: error?.response?.data?.error || "Failed to update blog",
         variant: "destructive",
       });
     } finally {
@@ -167,7 +243,7 @@ export default function EditBlog({ params }: { params: Promise<{ id: string }> }
   };
 
   if (loading) {
-    return <div className="container mt-8">Loading...</div>;
+    return <LoadingSpinner />
   }
 
   if (!blog) {
