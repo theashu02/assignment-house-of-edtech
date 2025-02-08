@@ -14,19 +14,22 @@ import { BookOpen, Clock, Search, Star } from "lucide-react";
 const FrontPage = () => {
 
   return (
-    <div className="min-h-screen bg-background">
-
+    <main className="flex-1 bg-black">
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold">Welcome to SimpL Blogs</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Discover the latest insights, tutorials, and best practices in web
-            development, design, and technology.
-          </p>
+      <section className="flex items-center justify-center">
+        <div className="container mx-auto px-4">
+          <div className="text-center space-y-6 max-w-4xl mx-auto my-auto">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight bg-clip-text text-[#f4f4f4] mt-[20%]">
+              Welcome to SimpL Blogs
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Discover the latest insights, tutorials, and best practices in web
+              development, design, and technology.
+            </p>
+          </div>
         </div>
       </section>
-    </div>
+    </main>
   );
 };
 

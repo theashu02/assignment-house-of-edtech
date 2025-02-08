@@ -9,7 +9,7 @@ export function Footer({ className }: React.HTMLAttributes<HTMLElement>) {
   return (
     <footer
       className={cn(
-        "sticky bottom-0 z-50 border-t bg-gradient-to-br from-gray-900 to-black",
+        "sticky bottom-0 z-50 bg-gradient-to-br from-gray-900 to-black shadow-lg",
         className
       )}
     >

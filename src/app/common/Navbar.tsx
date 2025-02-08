@@ -34,7 +34,7 @@ export function Navbar({ className }: React.HTMLAttributes<HTMLElement>) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full border-b border-zinc-800 bg-zinc-900/95 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/80",
+        "sticky top-0 w-full border-b border-zinc-800 bg-zinc-900/95 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/80",
         className
       )}
     >
