@@ -1,60 +1,35 @@
-// import mongoose from "mongoose";
-
-// const MONGODB_URI = process.env.MONGODB_URI!;
-
-// if (!MONGODB_URI) {
-//   throw new Error("Please define the MONGODB_URI environment variable");
-// }
-
-// let cached = global.mongoose;
-
-// if (!cached) {
-//   cached = global.mongoose = { conn: null, promise: null };
-// }
-
-// async function connectDB() {
-//   if (cached.conn) {
-//     return cached.conn;
-//   }
-
-//   if (!cached.promise) {
-//     cached.promise = mongoose.connect(MONGODB_URI);
-//   }
-//   cached.conn = await cached.promise;
-//   return cached.conn;
-// }
-
-// export default connectDB;
 import mongoose from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable");
+  throw new Error(
+    "Please define the MONGODB_URI environment variable inside .env.local"
+  );
 }
 
-// Extend global type to include mongoose cache
-declare global {
-  var mongooseCache: {
-    conn: mongoose.Connection | null;
-    promise: Promise<mongoose.Connection> | null;
-  };
-}
+let cached = (global as any).mongoose;
 
-// Ensure the cache exists globally
-global.mongooseCache = global.mongooseCache || { conn: null, promise: null };
+if (!cached) {
+  cached = (global as any).mongoose = { conn: null, promise: null };
+}
 
 async function connectDB() {
-  if (global.mongooseCache.conn) {
-    return global.mongooseCache.conn;
+  if (cached.conn) {
+    return cached.conn;
   }
 
-  if (!global.mongooseCache.promise) {
-    global.mongooseCache.promise = mongoose.connect(MONGODB_URI).then((mongoose) => mongoose.connection);
-  }
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+    };
 
-  global.mongooseCache.conn = await global.mongooseCache.promise;
-  return global.mongooseCache.conn;
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      return mongoose;
+    });
+  }
+  cached.conn = await cached.promise;
+  return cached.conn;
 }
 
 export default connectDB;
