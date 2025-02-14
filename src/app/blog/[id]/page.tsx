@@ -20,9 +20,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
   await connectDB();
 
   const { id } = await params;
-  const blog: BlogPost | null = await Blog.findById(id).populate(
-    "author"
-  );
+  const blog: BlogPost | null = await Blog.findById(id).populate("author");
 
   if (!blog) {
     return <Loader2 className="h-5 w-5" />;
