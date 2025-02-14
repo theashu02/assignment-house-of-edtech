@@ -1,4 +1,4 @@
-
+// 'use client'
 import React from "react";
 import Blog from "@/models/Blog";
 import connectDB from "@/lib/db";
@@ -28,10 +28,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
     "author"
   );
 
-  // const product = await Product.findById(decodedId);
-
   if (!blog) {
-    return <Loader2 className="h-5 w-5" />;
+    return <p>no blogs found</p>
   }
 
   return (
