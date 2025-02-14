@@ -355,7 +355,7 @@ export default function Dashboard() {
                     <Button
                       variant="ghost"
                       className="text-zinc-50 hover:text-zinc-200 -ml-4 text-sm bg-slate-600 hover:bg-slate-500"
-                      onClick={() => router.push(`/blog/${blog._id}`)}
+                      onClick={() => window.open(`/blog/${blog._id}`, "_blank")}
                     >
                       Read more
                       <ArrowRight className="ml-2 h-4 w-4" />
