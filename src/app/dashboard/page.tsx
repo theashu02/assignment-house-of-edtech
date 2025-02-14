@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { encodeId } from "@/lib/code";
 import {
   Image as ImageIcon,
   Loader2,
@@ -355,7 +356,7 @@ export default function Dashboard() {
                     <Button
                       variant="ghost"
                       className="text-zinc-50 hover:text-zinc-200 -ml-4 text-sm bg-slate-600 hover:bg-slate-500"
-                      onClick={() => window.open(`/blog/${blog._id}`, "_blank")}
+                      onClick={() => router.push(`/blog/${encodeId(blog._id)}`)}
                     >
                       Read more
                       <ArrowRight className="ml-2 h-4 w-4" />

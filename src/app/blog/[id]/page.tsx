@@ -5,6 +5,7 @@ import connectDB from "@/lib/db";
 import Image from "next/image";
 import BackButton from "@/components/BackButton";
 import { Loader2 } from "lucide-react";
+import { decodeId,encodeId } from "@/lib/code";
 
 interface BlogPost {
   _id: string;
@@ -20,8 +21,14 @@ interface BlogPost {
 export default async function BlogPostPage({ params }: { params: Promise<{ id: string }> }) {
   await connectDB();
 
-  const { id } = await params;
-  const blog: BlogPost | null = await Blog.findById(id).populate("author");
+  const { id } = await params; 
+  const decodedId = decodeId(id); 
+
+  const blog: BlogPost | null = await Blog.findById(decodedId).populate(
+    "author"
+  );
+
+  // const product = await Product.findById(decodedId);
 
   if (!blog) {
     return <Loader2 className="h-5 w-5" />;
