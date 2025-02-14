@@ -7,6 +7,7 @@ import {
   Calendar,
   UserCircle,
   ChevronLeft,
+  Key,
 } from "lucide-react";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +27,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { RightArrow } from "@/icons/arrow";
 import axios from "axios";
+import Link from "next/link";
 interface Blog {
   _id: string;
   title: string;
@@ -296,70 +298,72 @@ export default function Dashboard() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence>
             {blogs.map((blog, index) => (
-              <motion.div
-                key={blog._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{
-                  duration: 0.3,
-                  delay: index * 0.1,
-                  ease: "easeInOut",
-                }}
-                className="group bg-zinc-900 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-all duration-300 overflow-hidden"
-              >
-                {blog.imageUrl && (
-                  <div className="relative w-full h-56 overflow-hidden">
-                    <Image
-                      src={blog.imageUrl}
-                      alt={blog.title}
-                      fill
-                      className="object-cover transform group-hover:scale-105 transition-transform duration-500"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      priority
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/60 to-transparent" />
-                  </div>
-                )}
-                <div className="p-6 space-y-4">
-                  <div className="space-y-2">
-                    <h2 className="text-xl font-semibold text-zinc-100 line-clamp-2 group-hover:text-blue-400 transition-colors duration-200">
-                      {blog.title}
-                    </h2>
-                    <div className="flex items-center gap-2 text-sm text-zinc-400">
-                      <span className="inline-flex items-center gap-1">
-                        <UserCircle className="h-4 w-4" />
-                        {blog.author.name}
-                      </span>
-                      <span className="text-zinc-600">•</span>
-                      <span className="inline-flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        {new Date(blog.createdAt).toLocaleDateString(
-                          undefined,
-                          {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          }
-                        )}
-                      </span>
+              <Link className="block" href={`/blog/${blog._id}`} key={blog._id}>
+                <motion.div
+                  key={blog._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{
+                    duration: 0.3,
+                    delay: index * 0.1,
+                    ease: "easeInOut",
+                  }}
+                  className="group bg-zinc-900 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-all duration-300 overflow-hidden"
+                >
+                  {blog.imageUrl && (
+                    <div className="relative w-full h-56 overflow-hidden">
+                      <Image
+                        src={blog.imageUrl}
+                        alt={blog.title}
+                        fill
+                        className="object-cover transform group-hover:scale-105 transition-transform duration-500"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        priority
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/60 to-transparent" />
                     </div>
-                  </div>
-                  <p className="text-zinc-400 line-clamp-3 text-sm leading-relaxed">
-                    {blog.content}
-                  </p>
-                  {/* <div className="pt-2">
+                  )}
+                  <div className="p-6 space-y-4">
+                    <div className="space-y-2">
+                      <h2 className="text-xl font-semibold text-zinc-100 line-clamp-2 group-hover:text-blue-400 transition-colors duration-200">
+                        {blog.title}
+                      </h2>
+                      <div className="flex items-center gap-2 text-sm text-zinc-400">
+                        <span className="inline-flex items-center gap-1">
+                          <UserCircle className="h-4 w-4" />
+                          {blog.author.name}
+                        </span>
+                        <span className="text-zinc-600">•</span>
+                        <span className="inline-flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          {new Date(blog.createdAt).toLocaleDateString(
+                            undefined,
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            }
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-zinc-400 line-clamp-3 text-sm leading-relaxed">
+                      {blog.content}
+                    </p>
+                    {/* <div className="pt-2">
                     <Button
                       variant="ghost"
                       className="text-zinc-50 hover:text-zinc-200 -ml-4 text-sm bg-slate-600 hover:bg-slate-500"
-                      onClick={() => window.location.href = `/blog/${blog._id}`}
+                      onClick={() => router.push(`/blog/${blog._id})}
                     >
                       Read more
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div> */}
-                </div>
-              </motion.div>
+                  </div>
+                </motion.div>
+              </Link>
             ))}
           </AnimatePresence>
         </div>

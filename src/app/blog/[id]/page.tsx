@@ -1,14 +1,11 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import React from "react";
+import Blog from "@/models/Blog";
+import connectDB from "@/lib/db";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import LoadingSpinner from "../common/LoadingSpinner";
-import axios from "axios";
+import BackButton from "@/components/BackButton";
+import { Loader2 } from "lucide-react";
 
-interface Blog {
+interface BlogPost {
   _id: string;
   title: string;
   content: string;
@@ -19,37 +16,23 @@ interface Blog {
   createdAt: string;
 }
 
-export default function BlogDetails() {
-  const [blog, setBlog] = useState<Blog | null>(null);
-  const { query } = useRouter();
-  const { toast } = useToast();
+export default async function BlogPostPage({ params }: { params: Promise<{ id: string }> }) {
+  await connectDB();
 
-  useEffect(() => {
-    if (query.id) {
-      fetchBlogDetails(query.id as string);
-    }
-  }, [query.id]);
-
-  const fetchBlogDetails = async (id: string) => {
-    try {
-      const response = await axios.get(`/api/blog/${id}`);
-      setBlog(response.data);
-    } catch (error) {
-      console.error("Error fetching blog details:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch blog details",
-        variant: "destructive",
-      });
-    }
-  };
+  const { id } = await params;
+  const blog: BlogPost | null = await Blog.findById(id).populate(
+    "author"
+  );
 
   if (!blog) {
-    return <LoadingSpinner />
+    return <Loader2 className="h-5 w-5" />;
   }
 
   return (
     <div className="min-h-screen bg-gray-800">
+      <div className="pt-[3%] pl-[3%]">
+        <BackButton />
+      </div>
       <div className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-gray-200 mb-4">{blog.title}</h1>
         <div className="flex items-center gap-2 text-sm text-zinc-400 mb-4">
@@ -76,14 +59,7 @@ export default function BlogDetails() {
           </div>
         )}
         <p className="text-zinc-100 leading-relaxed">{blog.content}</p>
-        <Button
-          variant="ghost"
-          className="mt-4 text-zinc-50 hover:text-zinc-200"
-          onClick={() => window.history.back()}
-        >
-          Go Back
-        </Button>
       </div>
     </div>
   );
-} 
+}
