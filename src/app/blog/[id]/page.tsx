@@ -1,35 +1,23 @@
 // 'use client'
 import React from "react";
-import Blog from "@/models/Blog";
-import connectDB from "@/lib/db";
 import Image from "next/image";
 import BackButton from "@/components/BackButton";
-import { Loader2 } from "lucide-react";
-import { decodeId,encodeId } from "@/lib/code";
+import { getBlogById } from "@/app/actions";
 
-interface BlogPost {
-  _id: string;
-  title: string;
-  content: string;
-  imageUrl?: string;
-  author: {
-    name: string;
-  };
-  createdAt: string;
-}
-
-export default async function BlogPostPage({ params }: { params: Promise<{ id: string }> }) {
-  await connectDB();
-
-  const { id } = await params; 
-  const decodedId = decodeId(id); 
-
-  const blog: BlogPost | null = await Blog.findById(decodedId).populate(
-    "author"
-  );
+export default async function BlogPostPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const blog = await getBlogById(id);
 
   if (!blog) {
-    return <p>no blogs found</p>
+    return (
+      <div className="min-h-screen bg-gray-800 flex items-center justify-center">
+        <p className="text-gray-200 text-xl">Blog post not found</p>
+      </div>
+    );
   }
 
   return (
